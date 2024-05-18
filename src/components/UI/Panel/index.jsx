@@ -3,7 +3,6 @@
 import React from "react";
 import "./styles.css";
 import { SliderWithLabel } from "./Slider";
-import { Checkbox } from "./Checkbox";
 import { ColorInput } from "./ColorInput";
 
 export const Panel = () => {
@@ -11,9 +10,6 @@ export const Panel = () => {
     <div className="Panel">
       <SliderWithLabel label="width" max={5} />
       <SliderWithLabel label="depth" max={5} />
-      <SliderWithLabel label="anchor X" min={-2} defaultValue={0} max={2} />
-      <SliderWithLabel label="anchor Z" min={-2} defaultValue={0} max={2} />
-      <Checkbox />
       <ColorInput />
     </div>
   );

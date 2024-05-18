@@ -15,8 +15,6 @@ export const BrickCursor = forwardRef(
         face: { normal: { x: 0, y: 0, z: 1 } },
       },
       dimensions = { x: 1, z: 1 },
-      rotation = 0,
-      translation = { x: 0, z: 0 },
     },
     ref
   ) => {
@@ -27,8 +25,8 @@ export const BrickCursor = forwardRef(
     const { height, width, depth } = getMeasurementsFromDimensions(dimensions);
 
     const position = useMemo(() => {
-      const evenWidth = rotation === 0 ? width % 2 === 0 : depth % 2 === 0;
-      const evenDepth = rotation === 0 ? depth % 2 === 0 : width % 2 === 0;
+      const evenWidth = width % 2 === 0;
+      const evenDepth = depth % 2 === 0;
 
       return new Vector3()
         .copy(intersect.point)
@@ -43,29 +41,18 @@ export const BrickCursor = forwardRef(
             evenDepth ? base : base / 2
           )
         );
-    }, [intersect, height, rotation, width, depth]);
-
-    const compansateX =
-      dimensions.x % 2 === 0 ? dimensions.x / 2 : (dimensions.x - 1) / 2;
-    const compansateZ =
-      dimensions.z % 2 === 0 ? dimensions.z / 2 : (dimensions.z - 1) / 2;
+    }, [intersect, height, width, depth]);
 
     const offsetX =
-      Math.sign(translation.x) < 0
-        ? Math.max(translation.x, -compansateX)
-        : Math.min(translation.x, compansateX);
-
+      dimensions.x % 2 === 0 ? dimensions.x / 2 : (dimensions.x - 1) / 2;
     const offsetZ =
-      Math.sign(translation.z) < 0
-        ? Math.max(translation.z, -compansateZ)
-        : Math.min(translation.z, compansateZ);
+      dimensions.z % 2 === 0 ? dimensions.z / 2 : (dimensions.z - 1) / 2;
 
     return (
       <>
         <group
           ref={ref}
           position={[position.x, Math.abs(position.y), position.z]}
-          rotation={[0, rotation, 0]}
           visible={visible}
         >
           <mesh

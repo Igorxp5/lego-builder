@@ -7,7 +7,6 @@ export const CREATE_MODE = "Create Mode";
 export const EDIT_MODE = "Edit Mode";
 
 export const defaultWidth = 1;
-export const defaultAnchor = 0;
 
 export const bricks = [
   { x: 1, z: 1 },

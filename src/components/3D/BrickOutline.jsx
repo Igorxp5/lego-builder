@@ -38,25 +38,11 @@ const OutlineMesh = ({ meshesData }) => {
     if (!ref.current) return;
 
     meshesData.forEach((meshData, i) => {
-      const compansate = {
+      const offset = {
         x: dimensions.x % 2 === 0 ? dimensions.x / 2 : (dimensions.x - 1) / 2,
         z: dimensions.z % 2 === 0 ? dimensions.z / 2 : (dimensions.z - 1) / 2,
       };
 
-      const translation = meshData.translation;
-
-      const offset = {
-        x:
-          Math.sign(translation.x) < 0
-            ? Math.max(translation.x, -compansate.x)
-            : Math.min(translation.x, compansate.x),
-        z:
-          Math.sign(translation.z) < 0
-            ? Math.max(translation.z, -compansate.z)
-            : Math.min(translation.z, compansate.z),
-      };
-
-      dummy.rotation.set(0, meshData.rotation, 0);
       dummy.position.set(
         meshData.position.x + (offset.x * width) / dimensions.x,
         Math.abs(meshData.position.y),

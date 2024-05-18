@@ -16,8 +16,6 @@ export const Brick = ({
   intersect,
   color = "#ff0000",
   dimensions = { x: 1, z: 1 },
-  rotation = 0,
-  translation = { x: 0, z: 0 },
   bricksBoundBox = { current: [] },
   uID = "",
   onClick = () => {},
@@ -32,10 +30,8 @@ export const Brick = ({
   }, [width, height, depth, dimensions]);
 
   const position = useMemo(() => {
-    const evenWidth =
-      rotation === 0 ? dimensions.x % 2 === 0 : dimensions.z % 2 === 0;
-    const evenDepth =
-      rotation === 0 ? dimensions.z % 2 === 0 : dimensions.x % 2 === 0;
+    const evenWidth = dimensions.x % 2 === 0;
+    const evenDepth = dimensions.z % 2 === 0;
 
     return new Vector3()
       .copy(intersect.point)
@@ -50,7 +46,7 @@ export const Brick = ({
           evenDepth ? base : base / 2
         )
       );
-  }, [intersect, dimensions.x, dimensions.z, height, rotation]);
+  }, [intersect, dimensions.x, dimensions.z, height]);
 
   useEffect(() => {
     const brickBoundingBox = new Box3().setFromObject(brickRef.current);
@@ -69,27 +65,15 @@ export const Brick = ({
     };
   }, [uID, bricksBoundBox]);
 
-  const compansate = {
+  const offset = {
     x: dimensions.x % 2 === 0 ? dimensions.x / 2 : (dimensions.x - 1) / 2,
     z: dimensions.z % 2 === 0 ? dimensions.z / 2 : (dimensions.z - 1) / 2,
-  };
-
-  const offset = {
-    x:
-      Math.sign(translation.x) < 0
-        ? Math.max(translation.x, -compansate.x)
-        : Math.min(translation.x, compansate.x),
-    z:
-      Math.sign(translation.z) < 0
-        ? Math.max(translation.z, -compansate.z)
-        : Math.min(translation.z, compansate.z),
   };
 
   return (
     <>
       <motion.group
         ref={brickRef}
-        rotation={[0, rotation, 0]}
         position={[position.x, Math.abs(position.y), position.z]}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -109,8 +93,6 @@ export const Brick = ({
             depth,
             type: `${dimensions.x}-${dimensions.z}`,
             position,
-            rotation,
-            translation,
           }}
           position={[
             (offset.x * width) / dimensions.x,

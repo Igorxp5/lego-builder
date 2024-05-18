@@ -15,7 +15,6 @@ import {
   uID,
   getMeasurementsFromDimensions,
   base,
-  useAnchorShorcuts,
   minWorkSpaceSize,
   EDIT_MODE,
 } from "../../utils";
@@ -43,15 +42,10 @@ export const Scene = () => {
 
   const width = useStore((state) => state.width);
   const depth = useStore((state) => state.depth);
-  const anchorX = useStore((state) => state.anchorX);
-  const anchorZ = useStore((state) => state.anchorZ);
-  const rotate = useStore((state) => state.rotate);
   const color = useStore((state) => state.color);
 
   const room = useStore((state) => state.liveblocks.room);
   const self = useStore((state) => state.self);
-
-  useAnchorShorcuts();
 
   const addBrick = (e) => {
     e.stopPropagation();
@@ -103,9 +97,7 @@ export const Scene = () => {
           intersect: { point: e.point, face: e.face },
           uID: uID(),
           dimensions: { x: width, z: depth },
-          rotation: rotate ? Math.PI / 2 : 0,
           color: color,
-          translation: { x: anchorX, z: anchorZ },
         };
 
         setBricks((prevBricks) => [...prevBricks, brickData]);
@@ -124,8 +116,8 @@ export const Scene = () => {
       z: depth,
     });
 
-    const evenWidth = !rotate ? width % 2 === 0 : depth % 2 === 0;
-    const evenDepth = !rotate ? depth % 2 === 0 : width % 2 === 0;
+    const evenWidth = width % 2 === 0;
+    const evenDepth = depth % 2 === 0;
 
     mousePoint.set(e.point.x, Math.abs(e.point.y), e.point.z);
     normal.set(e.face.normal.x, Math.abs(e.face.normal.y), e.face.normal.z);
@@ -215,9 +207,7 @@ export const Scene = () => {
       />
       <BrickCursor
         ref={brickCursorRef}
-        rotation={rotate ? Math.PI / 2 : 0}
         dimensions={{ x: width, z: depth }}
-        translation={{ x: anchorX, z: anchorZ }}
       />
       <Others />
     </>
