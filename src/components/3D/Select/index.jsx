@@ -35,7 +35,8 @@ export function Select({
       if (!enable) return;
       setSelectedBricks({
         object: customFilter([e.object])[0],
-        shift: multiple && e.shiftKey,
+        multiple: multiple,
+        shift: e.shiftKey
       });
     },
     [enable, multiple]
@@ -46,10 +47,6 @@ export function Select({
       setSelectedBricks({});
     }
   }, [enable]);
-
-  const onPointerMissed = React.useCallback((e) => {
-    setSelectedBricks({});
-  }, []);
 
   const onEscapePressed = () => {
     setSelectedBricks({});
@@ -201,7 +198,6 @@ export function Select({
     <group
       ref={ref}
       onClick={onClick}
-      onPointerMissed={onPointerMissed}
       {...props}
     >
       {children}

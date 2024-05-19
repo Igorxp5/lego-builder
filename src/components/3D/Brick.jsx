@@ -44,7 +44,7 @@ export const Brick = ({
       }
       bricksBoundBox.current = newA;
     };
-  }, [uID, bricksBoundBox]);
+  }, [uID, position, dimensions, bricksBoundBox]);
 
   return (
     <>

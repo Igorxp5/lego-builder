@@ -38,6 +38,7 @@ export const Scene = () => {
   const isEditMode = mode === EDIT_MODE;
   const isCreateMode = mode === CREATE_MODE;
 
+  const setSelectedBricks = useStore((state) => state.setSelectedBricks);
   const selectedBricks = useStore((state) => state.selectedBricks).map(
     (sel) => sel.userData
   ).filter((sel) => Object.keys(sel).length > 0);
@@ -103,6 +104,7 @@ export const Scene = () => {
           position: selected.includes(brick.uID) ? selectedBricksNewPosition[brick.uID] : brick.position
         }))
       );
+      setSelectedBricks({});
     }
   }
 
@@ -134,7 +136,7 @@ export const Scene = () => {
     if (!isEditMode) {
       if (!isDrag.current) addBrick();
       else isDrag.current = false;
-    } else if (selectedBricks.length > 0) {
+    } else if (selectedBricks.length > 0 && !e.shiftKey) {
       updateBrickPosition();
     }
   };
@@ -144,6 +146,7 @@ export const Scene = () => {
   };
 
   const isDrag = useRef(false);
+  const isShiftKey = useRef(false);
   const timeoutID = useRef(null);
 
   useEffect(() => {
