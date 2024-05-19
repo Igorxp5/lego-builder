@@ -6,7 +6,7 @@ import React, { useMemo, useEffect, useRef } from "react";
 import {
   CSSToHex,
   getMeasurementsFromDimensions,
-  getBoundBoxFromDimensions,
+  getBoundBoxFromMeasures,
   createGeometry,
 } from "../../utils";
 import { Vector3, Box3 } from "three";
@@ -30,7 +30,7 @@ export const Brick = ({
   }, [width, height, depth, dimensions]);
 
   useEffect(() => {
-    const brickBoundingBox = getBoundBoxFromDimensions(position, { width, height, depth });
+    const brickBoundingBox = getBoundBoxFromMeasures(position, { width, height, depth });
 
     bricksBoundBox.current.push({ uID, brickBoundingBox });
 

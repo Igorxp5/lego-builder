@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import {
   Brick,
   BrickCursor,
+  MultiBrickCursor,
   Lights,
   Workspace,
   BrickOutline,
@@ -15,7 +16,8 @@ import {
   uID,
   getMeasurementsFromDimensions,
   normalizePositionToSceneGrid,
-  getBoundBoxFromDimensions,
+  getBoundBoxFromMeasures,
+  doBoundBoxCollideWithBoundBoxSet,
   MIN_WORKSPACE_SIZE,
   EDIT_MODE,
   CREATE_MODE,
@@ -36,6 +38,19 @@ export const Scene = () => {
   const isEditMode = mode === EDIT_MODE;
   const isCreateMode = mode === CREATE_MODE;
 
+  const selectedBricks = useStore((state) => state.selectedBricks).map(
+    (sel) => sel.userData
+  ).filter((sel) => Object.keys(sel).length > 0);
+
+  const selectedBricksAnchor = useMemo(() => {
+    return selectedBricks.reduce((acc, brick) => {
+      if(brick.position.x < acc.x) acc.setX(brick.position.x);
+      if(brick.position.y < acc.y) acc.setY(brick.position.y);
+      if(brick.position.z < acc.z) acc.setZ(brick.position.z);
+      return acc;
+    }, new Vector3(Infinity, Infinity, Infinity));
+  });
+
   const width = useStore((state) => state.width);
   const depth = useStore((state) => state.depth);
   const color = useStore((state) => state.color);
@@ -46,37 +61,11 @@ export const Scene = () => {
   const self = useStore((state) => state.self);
 
   const addBrick = () => {
-    const dimensions = getMeasurementsFromDimensions({x: width, z: depth});
-    const boundingBoxOfBrickToBeAdded = getBoundBoxFromDimensions(mouseIntersect, dimensions); 
+    const measures = getMeasurementsFromDimensions({x: width, z: depth});
+    const boundingBoxOfBrick = getBoundBoxFromMeasures(mouseIntersect, measures);
+    const bricksBoundingBox = bricksBoundBox.current.map((bound) => bound.brickBoundingBox);
 
-    let canCreate = true;
-
-    for (let index = 0; index < bricksBoundBox.current.length; index++) {
-      const brickBoundingBox = bricksBoundBox.current[index].brickBoundingBox;
-      const collision =
-        boundingBoxOfBrickToBeAdded.intersectsBox(brickBoundingBox);
-
-      if (collision) {
-        const dx = Math.abs(
-          brickBoundingBox.max.x - boundingBoxOfBrickToBeAdded.max.x
-        );
-        const dz = Math.abs(
-          brickBoundingBox.max.z - boundingBoxOfBrickToBeAdded.max.z
-        );
-        const yIntsersect =
-          brickBoundingBox.max.y - 9 > boundingBoxOfBrickToBeAdded.min.y;
-        if (
-          yIntsersect &&
-          dx !== dimensions.width &&
-          dz !== dimensions.depth
-        ) {
-          canCreate = false;
-          break;
-        }
-      }
-    }
-
-    if (canCreate) {
+    if (!doBoundBoxCollideWithBoundBoxSet(boundingBoxOfBrick, bricksBoundingBox)) {
       const brickData = {
         position: mouseIntersect,
         uID: uID(),
@@ -88,9 +77,37 @@ export const Scene = () => {
     }
   };
 
+  const updateBrickPosition = () => {
+    const selected = selectedBricks.map((sel) => sel.uID);
+    const bricksBoundingBox = bricksBoundBox.current.map((bound) => bound.brickBoundingBox);
+    const selectedBricksNewPosition = {};
+    let canMove = true;
+    for (let index = 0; index < selectedBricks.length; index++) {
+      const brick = selectedBricks[index];
+      const measures = getMeasurementsFromDimensions(brick.dimensions);
+      const boundingBoxOfBrick = getBoundBoxFromMeasures(mouseIntersect, measures);
+      const newPosition = new Vector3()
+        .copy(mouseIntersect)
+        .add(brick.position)
+        .sub(selectedBricksAnchor);
+      selectedBricksNewPosition[brick.uID] = newPosition;
+      if (doBoundBoxCollideWithBoundBoxSet(boundingBoxOfBrick, bricksBoundingBox)) {
+        canMove = false;
+        break;
+      }
+    }
+    if (canMove) {
+      setBricks((bricks) =>
+        bricks.map((brick) => ({
+          ...brick,
+          position: selected.includes(brick.uID) ? selectedBricksNewPosition[brick.uID] : brick.position
+        }))
+      );
+    }
+  }
+
   const setBrickCursorPosition = (e) => {
     e.stopPropagation();
-    if (isEditMode) return;
 
     const mousePosition = new Vector3()
       .copy(e.point)
@@ -117,6 +134,8 @@ export const Scene = () => {
     if (!isEditMode) {
       if (!isDrag.current) addBrick();
       else isDrag.current = false;
+    } else if (selectedBricks.length > 0) {
+      updateBrickPosition();
     }
   };
 
@@ -177,6 +196,11 @@ export const Scene = () => {
         position={mouseIntersect}
         visible={isCreateMode}
         dimensions={{ x: width, z: depth }}
+      />
+      <MultiBrickCursor
+        anchor={selectedBricksAnchor}
+        position={mouseIntersect}
+        bricks={selectedBricks}
       />
       <Others />
     </>

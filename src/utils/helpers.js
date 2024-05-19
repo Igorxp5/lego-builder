@@ -32,7 +32,7 @@ export function mergeMeshes(geometries) {
   return mergeGeometries(geometries);
 }
 
-export function getBoundBoxFromDimensions(position, {width, height, depth}) {
+export function getBoundBoxFromMeasures(position, {width, height, depth}) {
   return new Box3(
     position,
     new Vector3()
@@ -67,6 +67,36 @@ export function createGeometry({
 
   const brickGeometry = mergeGeometries(geometries);
   return brickGeometry;
+}
+
+export function doBoundBoxCollideWithBoundBoxSet(testBoundBox, targetBoxes) {
+  for (let index = 0; index < targetBoxes.length; index++) {
+    const boundingBox = targetBoxes[index];
+    const collision = testBoundBox.intersectsBox(boundingBox);
+    
+    const size = testBoundBox.getSize(new Vector3());
+    const width = size.x;
+    const depth = size.z;
+
+    if (collision) {
+      const dx = Math.abs(
+        boundingBox.max.x - testBoundBox.max.x
+      );
+      const dz = Math.abs(
+        boundingBox.max.z - testBoundBox.max.z
+      );
+      const yIntsersect =
+        boundingBox.max.y - 9 > testBoundBox.min.y;
+      if (
+        yIntsersect &&
+        dx !== width &&
+        dz !== depth
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 export function collisonXYZ(o1, o2) {
