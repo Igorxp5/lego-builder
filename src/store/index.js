@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import {
   CREATE_MODE,
-  defaultWidth,
+  DEFAULT_WIDTH,
+  DEFAULT_DEPTH,
   generateSoftColors,
   uID,
 } from "../utils";
@@ -21,10 +22,10 @@ export const useStore = create(
       mode: CREATE_MODE,
       setMode: (newMode) => set({ mode: newMode }),
 
-      width: defaultWidth,
+      width: DEFAULT_WIDTH,
       setWidth: (newWidth) => set({ width: newWidth }),
 
-      depth: defaultWidth,
+      depth: DEFAULT_DEPTH,
       setDepth: (newDepth) => set({ depth: newDepth }),
 
       color: "#ff0000",

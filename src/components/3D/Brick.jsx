@@ -6,14 +6,14 @@ import React, { useMemo, useEffect, useRef } from "react";
 import {
   CSSToHex,
   getMeasurementsFromDimensions,
-  base,
+  getBoundBoxFromDimensions,
   createGeometry,
 } from "../../utils";
 import { Vector3, Box3 } from "three";
 import { motion } from "framer-motion-3d";
 
 export const Brick = ({
-  intersect,
+  position,
   color = "#ff0000",
   dimensions = { x: 1, z: 1 },
   bricksBoundBox = { current: [] },
@@ -29,27 +29,8 @@ export const Brick = ({
     return createGeometry({ width, height, depth, dimensions });
   }, [width, height, depth, dimensions]);
 
-  const position = useMemo(() => {
-    const evenWidth = dimensions.x % 2 === 0;
-    const evenDepth = dimensions.z % 2 === 0;
-
-    return new Vector3()
-      .copy(intersect.point)
-      .add(intersect.face.normal)
-      .divide(new Vector3(base, height, base))
-      .floor()
-      .multiply(new Vector3(base, height, base))
-      .add(
-        new Vector3(
-          evenWidth ? base : base / 2,
-          height / 2,
-          evenDepth ? base : base / 2
-        )
-      );
-  }, [intersect, dimensions.x, dimensions.z, height]);
-
   useEffect(() => {
-    const brickBoundingBox = new Box3().setFromObject(brickRef.current);
+    const brickBoundingBox = getBoundBoxFromDimensions(position, { width, height, depth });
 
     bricksBoundBox.current.push({ uID, brickBoundingBox });
 
@@ -65,16 +46,11 @@ export const Brick = ({
     };
   }, [uID, bricksBoundBox]);
 
-  const offset = {
-    x: dimensions.x % 2 === 0 ? dimensions.x / 2 : (dimensions.x - 1) / 2,
-    z: dimensions.z % 2 === 0 ? dimensions.z / 2 : (dimensions.z - 1) / 2,
-  };
-
   return (
     <>
       <motion.group
         ref={brickRef}
-        position={[position.x, Math.abs(position.y), position.z]}
+        position={[position.x, position.y, position.z]}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", stiffness: 250, duration: 2 }}
@@ -88,17 +64,12 @@ export const Brick = ({
           userData={{
             uID,
             dimensions,
-            offset,
+            height,
             width,
             depth,
             type: `${dimensions.x}-${dimensions.z}`,
             position,
           }}
-          position={[
-            (offset.x * width) / dimensions.x,
-            0.5,
-            (offset.z * depth) / dimensions.z,
-          ]}
           onClick={onClick}
           geometry={brickGeometry}
           onPointerMove={mouseMove}

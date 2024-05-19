@@ -7,8 +7,8 @@ import React, { useLayoutEffect, useMemo, useRef } from "react";
 import {
   createGeometry,
   getMeasurementsFromDimensions,
-  knobSize,
-  outlineWidth,
+  KNOB_SIZE,
+  OUTLINE_WIDTH,
 } from "../../utils";
 import { BackSide, Object3D } from "three";
 import { useStore } from "../../store";
@@ -26,11 +26,11 @@ const OutlineMesh = ({ meshesData }) => {
 
   const outlineGeometry = useMemo(() => {
     return createGeometry({
-      width: width + outlineWidth * 2,
-      height: height + outlineWidth * 2,
-      depth: depth + outlineWidth * 2,
+      width: width + OUTLINE_WIDTH * 2,
+      height: height + OUTLINE_WIDTH * 2,
+      depth: depth + OUTLINE_WIDTH * 2,
       dimensions,
-      knobDim: knobSize + outlineWidth,
+      knobDim: KNOB_SIZE + OUTLINE_WIDTH,
     });
   }, [width, height, depth, dimensions]);
 
@@ -38,16 +38,10 @@ const OutlineMesh = ({ meshesData }) => {
     if (!ref.current) return;
 
     meshesData.forEach((meshData, i) => {
-      const offset = {
-        x: dimensions.x % 2 === 0 ? dimensions.x / 2 : (dimensions.x - 1) / 2,
-        z: dimensions.z % 2 === 0 ? dimensions.z / 2 : (dimensions.z - 1) / 2,
-      };
-
       dummy.position.set(
-        meshData.position.x + (offset.x * width) / dimensions.x,
-        Math.abs(meshData.position.y),
-        meshData.position.z + (offset.z * width) / dimensions.z
-      );
+        meshData.position.x - OUTLINE_WIDTH,
+        meshData.position.y - OUTLINE_WIDTH,
+        meshData.position.z - OUTLINE_WIDTH);
       dummy.updateMatrix();
       ref.current.setMatrixAt(i, dummy.matrix);
     });

@@ -1,6 +1,8 @@
-import { base, knobSize } from "./constants";
-import { BoxGeometry, CylinderGeometry } from "three";
+import { BASE, GRID_UNIT, KNOB_SIZE } from "./constants";
+import { BoxGeometry, CylinderGeometry, Vector3, Box3 } from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
+
+export const SCENE_GRID_NORM = new Vector3(GRID_UNIT.x, GRID_UNIT.y, GRID_UNIT.z); 
 
 export function CSSToHex(cssColor) {
   return parseInt(`0x${cssColor.substring(1)}`, 16);
@@ -8,14 +10,35 @@ export function CSSToHex(cssColor) {
 
 export function getMeasurementsFromDimensions({ x, y, z }) {
   return {
-    width: base * x,
-    height: base * y || (base * 2) / 1.5,
-    depth: base * z,
+    width: GRID_UNIT.x * x,
+    height: GRID_UNIT.y || GRID_UNIT.y * y,
+    depth: GRID_UNIT.z * z,
   };
+}
+
+export function normalizeVector3(vector, norm) {
+  return new Vector3()
+    .copy(vector)
+    .divide(norm)
+    .floor()
+    .multiply(norm);
+}
+
+export function normalizePositionToSceneGrid(vector) {
+  return normalizeVector3(vector, SCENE_GRID_NORM);
 }
 
 export function mergeMeshes(geometries) {
   return mergeGeometries(geometries);
+}
+
+export function getBoundBoxFromDimensions(position, {width, height, depth}) {
+  return new Box3(
+    position,
+    new Vector3()
+      .copy(position)
+      .add(new Vector3(width, height, depth))
+  );
 }
 
 export function createGeometry({
@@ -23,20 +46,21 @@ export function createGeometry({
   height,
   depth,
   dimensions,
-  knobDim = knobSize,
+  knobDim = KNOB_SIZE,
 }) {
   let geometries = [];
-  const cubeGeo = new BoxGeometry(width - 0.1, height - 0.1, depth - 0.1);
-
+  const cubeGeo = new BoxGeometry(width - 0.1, height + 0.1, depth - 0.1);
+  const originTranslate = {x: width / 2, y: height / 2, z: depth / 2}
+  cubeGeo.translate(originTranslate.x, originTranslate.y, originTranslate.z);
   geometries.push(cubeGeo);
 
   for (let i = 0; i < dimensions.x; i++) {
     for (let j = 0; j < dimensions.z; j++) {
       const cylinder = new CylinderGeometry(knobDim, knobDim, knobDim, 20);
-      const x = base * i - ((dimensions.x - 1) * base) / 2;
-      const y = base / 1.5;
-      const z = base * j - ((dimensions.z - 1) * base) / 2;
-      cylinder.translate(x, y, z);
+      const x = GRID_UNIT.x * i - ((dimensions.x - 1) * GRID_UNIT.x) / 2;
+      const y = BASE / 1.5;
+      const z = GRID_UNIT.z * j - ((dimensions.z - 1) * GRID_UNIT.z) / 2;
+      cylinder.translate(originTranslate.x + x, originTranslate.y + y, originTranslate.z + z);
       geometries.push(cylinder);
     }
   }
