@@ -3,6 +3,7 @@ import {
   CREATE_MODE,
   DEFAULT_WIDTH,
   DEFAULT_DEPTH,
+  DEFAULT_ANCHOR,
   generateSoftColors,
   uID,
 } from "../utils";
@@ -27,6 +28,12 @@ export const useStore = create(
 
       depth: DEFAULT_DEPTH,
       setDepth: (newDepth) => set({ depth: newDepth }),
+
+      anchorX: DEFAULT_ANCHOR,
+      setAnchorX: (newAnchorPoint) => set({ anchorX: newAnchorPoint }),
+
+      anchorZ: DEFAULT_ANCHOR,
+      setAnchorZ: (newAnchorPoint) => set({ anchorZ: newAnchorPoint }),
 
       color: "#ff0000",
       setColor: (newColor) => set({ color: newColor }),

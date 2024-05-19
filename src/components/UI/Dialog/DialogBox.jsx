@@ -31,6 +31,13 @@ export const DialogBox = () => (
           <ul>
             <li>Use left side panel to change the properties of brick</li>
             <li>
+              You change the pivot point of bricks using{" "}
+              <span className="key">A</span> <span className="key">S</span>{" "}
+              <span className="key">W</span> and <span className="key">D</span>{" "}
+              keys or You can use <strong>anchorX</strong> and{" "}
+              <strong>anchorZ</strong> option from the control panel
+            </li>
+            <li>
               To replace brick, select <strong>Edit</strong> option in control
               panel then hold{" "}
               <span className="key">Shift</span>, select one or multiple bricks

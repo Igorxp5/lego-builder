@@ -8,11 +8,15 @@ import { useStore } from "../../../../store";
 const stateMap = {
   width: "width",
   depth: "depth",
+  "anchor X": "anchorX",
+  "anchor Z": "anchorZ",
 };
 
 const setterMap = {
   width: "setWidth",
   depth: "setDepth",
+  "anchor X": "setAnchorX",
+  "anchor Z": "setAnchorZ",
 };
 
 export const SliderWithLabel = ({
@@ -28,6 +32,7 @@ export const SliderWithLabel = ({
       <label className="SliderLabel">{label}</label>
       <Slider.Root
         className="SliderRoot"
+        value={[value]}
         defaultValue={[defaultValue]}
         max={4}
         step={1}

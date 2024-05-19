@@ -9,6 +9,7 @@ export const EDIT_MODE = "Edit Mode";
 
 export const DEFAULT_WIDTH = 1;
 export const DEFAULT_DEPTH = 1;
+export const DEFAULT_ANCHOR = 0;
 
 export const CURSOR_COLORS = [
   "#FFA6B1", // Soft Pink

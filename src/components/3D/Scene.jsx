@@ -14,10 +14,12 @@ import {
 import { Vector3 } from "three";
 import {
   uID,
+  useAnchorShorcuts,
   getMeasurementsFromDimensions,
   normalizePositionToSceneGrid,
   getBoundBoxFromMeasures,
   doBoundBoxCollideWithBoundBoxSet,
+  GRID_UNIT,
   MIN_WORKSPACE_SIZE,
   EDIT_MODE,
   CREATE_MODE,
@@ -54,12 +56,17 @@ export const Scene = () => {
 
   const width = useStore((state) => state.width);
   const depth = useStore((state) => state.depth);
+  const anchorX = useStore((state) => state.anchorX);
+  const anchorZ = useStore((state) => state.anchorZ);
   const color = useStore((state) => state.color);
 
+  const [rawMousePosition, setRawMousePosition] = useState(new Vector3());
   const [mouseIntersect, setMouseIntersect] = useState(new Vector3());
 
   const room = useStore((state) => state.liveblocks.room);
   const self = useStore((state) => state.self);
+
+  useAnchorShorcuts();
 
   const addBrick = () => {
     const measures = getMeasurementsFromDimensions({x: width, z: depth});
@@ -115,22 +122,36 @@ export const Scene = () => {
       .copy(e.point)
       .add(e.face.normal)
       .setY(Math.abs(e.point.y));
-    
-    const normalizedMousePosition = normalizePositionToSceneGrid(mousePosition);
 
-    setMouseIntersect(normalizedMousePosition);
+    setRawMousePosition(mousePosition);
+
+    updateMouseIntersectWithTranslation();
 
     room.broadcastEvent({
       type: self.id,
       data: {
-        x: normalizedMousePosition.x,
-        y: normalizedMousePosition.y,
-        z: normalizedMousePosition.z,
+        x: mouseIntersect.x,
+        y: mouseIntersect.y,
+        z: mouseIntersect.z,
         w: width,
         d: depth,
       },
     });
+
   };
+
+  const updateMouseIntersectWithTranslation = () => {
+    const normalizedMousePosition = normalizePositionToSceneGrid(rawMousePosition);
+    normalizedMousePosition.add(
+      new Vector3(anchorX * GRID_UNIT.x, 0, anchorZ * GRID_UNIT.z)
+    );
+
+    setMouseIntersect(normalizedMousePosition);
+  }
+
+  useEffect(() => {
+    updateMouseIntersectWithTranslation();
+  }, [anchorX, anchorZ]);
 
   const onClick = (e) => {
     if (!isEditMode) {
@@ -146,7 +167,6 @@ export const Scene = () => {
   };
 
   const isDrag = useRef(false);
-  const isShiftKey = useRef(false);
   const timeoutID = useRef(null);
 
   useEffect(() => {
