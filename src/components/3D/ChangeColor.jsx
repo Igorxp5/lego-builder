@@ -12,36 +12,16 @@ export const ChangeColor = ({ color }) => {
 
   const setBricks = useStore((state) => state.setBricks);
 
-  const prevColor = useRef(color);
-
-  const deferredColor = useDeferredValue(color);
-
   useEffect(() => {
-    if (selected.length < 1 || prevColor.current === deferredColor) return;
-
-    setBricks((bricks) => {
-      const updatedBricks = [];
-
-      bricks.forEach((brick) => {
-        const selectedClone = [...selected];
-        const uID = brick.uID;
-        for (let i = 0; i < selectedClone.length; i++) {
-          const selectedUID = selectedClone[i];
-          if (uID === selectedUID) {
-            brick.color = deferredColor;
-            selectedClone.splice(i, 1);
-          }
-        }
-        updatedBricks.push(brick);
-      });
-
-      return updatedBricks;
-    });
-
-    return () => {
-      prevColor.current = deferredColor;
-    };
-  }, [deferredColor, selected, setBricks]);
+    if (selected.length > 0) {
+      setBricks((bricks) =>
+        bricks.map((brick) => ({
+          ...brick,
+          color: selected.includes(brick.uID) ? color : brick.color
+        }))
+      );
+    }
+  }, [color]);
 
   return null;
 };
