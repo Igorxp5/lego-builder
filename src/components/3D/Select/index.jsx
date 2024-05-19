@@ -7,7 +7,7 @@ import { SelectionBox } from "three-stdlib";
 import { useThree } from "@react-three/fiber";
 import { shallow } from "zustand/shallow";
 import { useStore } from "../../../store";
-import { EDIT_MODE } from "../../../utils";
+import { useEscapeShortcut, EDIT_MODE } from "../../../utils";
 
 export function Select({
   box,
@@ -50,6 +50,12 @@ export function Select({
   const onPointerMissed = React.useCallback((e) => {
     setSelectedBricks({});
   }, []);
+
+  const onEscapePressed = () => {
+    setSelectedBricks({});
+  };
+
+  useEscapeShortcut(onEscapePressed);
 
   const ref = React.useRef(null);
 

@@ -31,6 +31,14 @@ export const useDeleteShortcut = (selected, setBricks, onDelete) => {
   return null;
 };
 
+export const useEscapeShortcut = (onPressed) => {
+  useKeyboardShortcut(["Escape"], onPressed, {
+    overrideSystem: true,
+    ignoreInputFields: false,
+    repeatOnHold: false,
+  });
+}
+
 export const useUndoRedoShortcut = (undo, redo) => {
   useKeyboardShortcut(["Control", "Z"], undo, {
     overrideSystem: true,
