@@ -39,17 +39,16 @@ export const DialogBox = () => (
             </li>
             <li>
               To replace brick, select <strong>Edit</strong> option in control
-              panel then hold{" "}
-              <span className="key">Shift</span>, select one or multiple bricks
-              by clicking on them, release {" "}
-              <span className="key">Shift</span> and click on the new place.
+              panel then select brick by clicking on brick or hold{" "}
+              <span className="key">Shift</span> to select multiple bricks
+              and click on the new place.
             </li>
             <li>
               To delete brick, select <strong>Edit</strong> option in control
-              panel then hold{" "}
-              <span className="key">Shift</span>, select one or multiple bricks
-              by clicking on them and
-              <span className="key">Delete</span> to delete selected bricks.
+              panel then select brick by clicking on brick or hold{" "}
+              <span className="key">Shift</span> to select multiple bricks and
+              use
+              <span className="key">Delete</span> to delete selected bricks
             </li>
             <li>
               Top bar has two options. create Mode which let&apos;s you create

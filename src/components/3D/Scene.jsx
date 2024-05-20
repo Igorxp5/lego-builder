@@ -111,7 +111,9 @@ export const Scene = () => {
           position: selected.includes(brick.uID) ? selectedBricksNewPosition[brick.uID] : brick.position
         }))
       );
-      setSelectedBricks({});
+      setTimeout(() => {
+        setSelectedBricks({});
+      }, 5); // This timeout makes the Select component do not click underlying brick after the selected bricks has been moved
     }
   }
 

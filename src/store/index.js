@@ -43,7 +43,7 @@ export const useStore = create(
         set((state) => {
           if (object === undefined) return { selectedBricks: [] };
           else if (Array.isArray(object)) return { selectedBricks: object };
-          else if (!multiple)
+          else if (!multiple || (!shift && state.selectedBricks.length === 0))
             return state.selectedBricks[0] === object
               ? { selectedBricks: [] }
               : { selectedBricks: [object] };
