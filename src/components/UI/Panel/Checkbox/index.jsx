@@ -31,6 +31,7 @@ export const Checkbox = ({ label = "rotate" }) => {
         checked={value}
         defaultChecked={value}
         id={label}
+        disabled={true}
         onCheckedChange={(bool) => setValue(bool)}
       >
         <CheckboxRadix.Indicator className="CheckboxIndicator">

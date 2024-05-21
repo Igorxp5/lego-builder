@@ -40,10 +40,19 @@ export const Scene = () => {
   const isEditMode = mode === EDIT_MODE;
   const isCreateMode = mode === CREATE_MODE;
 
+  const rotate = useStore((state) => state.rotate);
+  const setRotate = useStore((state) => state.setRotate);
+
   const setSelectedBricks = useStore((state) => state.setSelectedBricks);
   const selectedBricks = useStore((state) => state.selectedBricks).map(
     (sel) => sel.userData
-  ).filter((sel) => Object.keys(sel).length > 0);
+  ).filter((sel) => Object.keys(sel).length > 0).map((brick) => {
+    const { x, z } = brick.dimensions;
+    return {
+      ...brick,
+      dimensions: { x: !rotate ? x : z, z: !rotate ? z : x }
+    };
+  });
 
   const selectedBricksAnchor = useMemo(() => {
     return selectedBricks.reduce((acc, brick) => {
@@ -53,9 +62,6 @@ export const Scene = () => {
       return acc;
     }, new Vector3(Infinity, Infinity, Infinity));
   });
-
-  const rotate = useStore((state) => state.rotate);
-  const setRotate = useStore((state) => state.setRotate);
 
   const width = useStore((state) => !rotate ? state.width : state.depth);
   const depth = useStore((state) => !rotate ? state.depth : state.width);
@@ -95,7 +101,11 @@ export const Scene = () => {
     let canMove = true;
     for (let index = 0; index < selectedBricks.length; index++) {
       const brick = selectedBricks[index];
-      const measures = getMeasurementsFromDimensions(brick.dimensions);
+      const dimensions = {
+        x: !rotate ? brick.dimensions.x : brick.dimensions.z,
+        z: !rotate ? brick.dimensions.z : brick.dimensions.x
+      }
+      const measures = getMeasurementsFromDimensions(dimensions);
       const boundingBoxOfBrick = getBoundBoxFromMeasures(mouseIntersect, measures);
       const newPosition = new Vector3()
         .copy(mouseIntersect)
@@ -111,12 +121,17 @@ export const Scene = () => {
       setBricks((bricks) =>
         bricks.map((brick) => ({
           ...brick,
-          position: selected.includes(brick.uID) ? selectedBricksNewPosition[brick.uID] : brick.position
+          position: selected.includes(brick.uID) ? selectedBricksNewPosition[brick.uID] : brick.position,
+          dimensions: {
+            x: !selected.includes(brick.uID) || !rotate ? brick.dimensions.x : brick.dimensions.z,
+            z: !selected.includes(brick.uID) || !rotate ? brick.dimensions.z : brick.dimensions.x
+          }
         }))
       );
       setTimeout(() => {
         setSelectedBricks({});
       }, 5); // This timeout makes the Select component do not click underlying brick after the selected bricks has been moved
+      setRotate(false);
     }
   }
 
