@@ -54,8 +54,11 @@ export const Scene = () => {
     }, new Vector3(Infinity, Infinity, Infinity));
   });
 
-  const width = useStore((state) => state.width);
-  const depth = useStore((state) => state.depth);
+  const rotate = useStore((state) => state.rotate);
+  const setRotate = useStore((state) => state.setRotate);
+
+  const width = useStore((state) => !rotate ? state.width : state.depth);
+  const depth = useStore((state) => !rotate ? state.depth : state.width);
   const anchorX = useStore((state) => state.anchorX);
   const anchorZ = useStore((state) => state.anchorZ);
   const color = useStore((state) => state.color);
@@ -154,6 +157,10 @@ export const Scene = () => {
   useEffect(() => {
     updateMouseIntersectWithTranslation();
   }, [anchorX, anchorZ]);
+
+  useEffect(() => {
+    setRotate(false);
+  }, [mode]);
 
   const onClick = (e) => {
     if (!isEditMode) {

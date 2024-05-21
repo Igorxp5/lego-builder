@@ -35,6 +35,9 @@ export const useStore = create(
       anchorZ: DEFAULT_ANCHOR,
       setAnchorZ: (newAnchorPoint) => set({ anchorZ: newAnchorPoint }),
 
+      rotate: false,
+      setRotate: (bool) => set({ rotate: bool }),
+
       color: "#ff0000",
       setColor: (newColor) => set({ color: newColor }),
 
