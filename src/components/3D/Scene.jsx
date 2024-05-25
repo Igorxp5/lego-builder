@@ -35,6 +35,9 @@ export const Scene = () => {
 
   const bricksBoundBox = useRef([]);
 
+  const brickCursorRef = useRef();
+  const multiBrickCursorRef = useRef();
+
   const mode = useStore((state) => state.mode);
 
   const isEditMode = mode === EDIT_MODE;
@@ -64,9 +67,6 @@ export const Scene = () => {
   const anchorZ = useStore((state) => state.anchorZ);
   const color = useStore((state) => state.color);
 
-  const [rawMousePosition, setRawMousePosition] = useState(new Vector3());
-  const [mouseIntersect, setMouseIntersect] = useState(new Vector3());
-
   const room = useStore((state) => state.liveblocks.room);
   const self = useStore((state) => state.self);
 
@@ -74,12 +74,12 @@ export const Scene = () => {
 
   const addBrick = () => {
     const measures = getMeasurementsFromDimensions({x: width, z: depth});
-    const boundingBoxOfBrick = getBoundBoxFromMeasures(mouseIntersect, measures);
+    const boundingBoxOfBrick = getBoundBoxFromMeasures(brickCursorRef.current.position, measures);
     const bricksBoundingBox = bricksBoundBox.current.map((bound) => bound.brickBoundingBox);
 
     if (!doBoundBoxCollideWithBoundBoxSet(boundingBoxOfBrick, bricksBoundingBox)) {
       const brickData = {
-        position: mouseIntersect,
+        position: new Vector3().copy(brickCursorRef.current.position),
         uID: uID(),
         dimensions: { x: width, z: depth },
         color: color,
@@ -105,7 +105,7 @@ export const Scene = () => {
         .add(brick.position)
         .sub(selectedBricksAnchor)
         .applyAxisAngle(new Vector3(0, 1, 0), rotate ? Math.PI / 2 : 0)
-        .add(mouseIntersect);
+        .add(multiBrickCursorRef.current.position);
       const measures = getMeasurementsFromDimensions(dimensions);
       const boundingBoxOfBrick = getBoundBoxFromMeasures(position, measures);
       if (doBoundBoxCollideWithBoundBoxSet(boundingBoxOfBrick, bricksBoundingBox)) {
@@ -131,21 +131,33 @@ export const Scene = () => {
   const setBrickCursorPosition = (e) => {
     e.stopPropagation();
 
-    const mousePosition = new Vector3()
+    const mousePosition = normalizePositionToSceneGrid(
+      new Vector3()
       .copy(e.point)
       .add(e.face.normal)
-      .setY(Math.abs(e.point.y));
+      .setY(Math.abs(e.point.y))
+    );
 
-    setRawMousePosition(mousePosition);
+    const translatedXZMousePosition = new Vector3()
+      .copy(mousePosition)
+      .add(new Vector3(anchorX * GRID_UNIT.x, 0, anchorZ * GRID_UNIT.z));
 
-    updateMouseIntersectWithTranslation();
+    if (isCreateMode && brickCursorRef.current) {
+      brickCursorRef.current.userData.mousePosition = mousePosition; 
+      brickCursorRef.current.position.copy(translatedXZMousePosition);
+    }
+
+    if (isEditMode && multiBrickCursorRef.current) {
+      multiBrickCursorRef.current.userData.mousePosition = mousePosition; 
+      multiBrickCursorRef.current.position.copy(translatedXZMousePosition);
+    }
 
     room.broadcastEvent({
       type: self.id,
       data: {
-        x: mouseIntersect.x,
-        y: mouseIntersect.y,
-        z: mouseIntersect.z,
+        x: translatedXZMousePosition.x,
+        y: translatedXZMousePosition.y,
+        z: translatedXZMousePosition.z,
         w: width,
         d: depth,
       },
@@ -153,17 +165,18 @@ export const Scene = () => {
 
   };
 
-  const updateMouseIntersectWithTranslation = () => {
-    const normalizedMousePosition = normalizePositionToSceneGrid(rawMousePosition);
-    normalizedMousePosition.add(
-      new Vector3(anchorX * GRID_UNIT.x, 0, anchorZ * GRID_UNIT.z)
-    );
-
-    setMouseIntersect(normalizedMousePosition);
-  }
-
   useEffect(() => {
-    updateMouseIntersectWithTranslation();
+    if (isCreateMode && brickCursorRef.current && brickCursorRef.current.userData.mousePosition) {
+      brickCursorRef.current.position
+        .copy(brickCursorRef.current.userData.mousePosition)
+        .add(new Vector3(anchorX * GRID_UNIT.x, 0, anchorZ * GRID_UNIT.z));
+    }
+
+    if (isEditMode && multiBrickCursorRef.current && multiBrickCursorRef.current.userData.mousePosition) {
+      multiBrickCursorRef.current.position
+        .copy(multiBrickCursorRef.current.userData.mousePosition)
+        .add(new Vector3(anchorX * GRID_UNIT.x, 0, anchorZ * GRID_UNIT.z));
+    }
   }, [anchorX, anchorZ]);
 
   useEffect(() => {
@@ -233,13 +246,13 @@ export const Scene = () => {
         workspaceSize={MIN_WORKSPACE_SIZE}
       />
       <BrickCursor
-        position={mouseIntersect}
+        ref={brickCursorRef}
         visible={isCreateMode}
         dimensions={{ x: width, z: depth }}
       />
       <MultiBrickCursor
+        ref={multiBrickCursorRef}
         anchor={selectedBricksAnchor}
-        position={mouseIntersect}
         rotate={rotate}
         bricks={selectedBricks}
       />
