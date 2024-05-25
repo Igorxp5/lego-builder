@@ -44,6 +44,7 @@ export const Scene = () => {
   const selectedBricks = useStore((state) => state.selectedBricks).map(
     (sel) => sel.userData
   ).filter((sel) => Object.keys(sel).length > 0);
+  const hasSelectedBricks = selectedBricks.length > 0; 
 
   const selectedBricksAnchor = useMemo(() => {
     return selectedBricks.reduce((acc, brick) => {
@@ -52,7 +53,7 @@ export const Scene = () => {
       if(brick.position.z < acc.z) acc.setZ(brick.position.z);
       return acc;
     }, new Vector3(Infinity, Infinity, Infinity));
-  });
+  }, [hasSelectedBricks]);
 
   const rotate = useStore((state) => state.rotate);
   const setRotate = useStore((state) => state.setRotate);
@@ -91,27 +92,34 @@ export const Scene = () => {
   const updateBrickPosition = () => {
     const selected = selectedBricks.map((sel) => sel.uID);
     const bricksBoundingBox = bricksBoundBox.current.map((bound) => bound.brickBoundingBox);
-    const selectedBricksNewPosition = {};
+    const selectedBricksNewProps = {};
     let canMove = true;
     for (let index = 0; index < selectedBricks.length; index++) {
       const brick = selectedBricks[index];
-      const measures = getMeasurementsFromDimensions(brick.dimensions);
-      const boundingBoxOfBrick = getBoundBoxFromMeasures(mouseIntersect, measures);
-      const newPosition = new Vector3()
-        .copy(mouseIntersect)
+      selectedBricksNewProps[brick.uID] = {};
+      const dimensions = {
+        x: !rotate ? brick.dimensions.x : brick.dimensions.z, 
+        z: !rotate ? brick.dimensions.z : brick.dimensions.x 
+      }
+      const position = new Vector3()
         .add(brick.position)
-        .sub(selectedBricksAnchor);
-      selectedBricksNewPosition[brick.uID] = newPosition;
+        .sub(selectedBricksAnchor)
+        .applyAxisAngle(new Vector3(0, 1, 0), rotate ? Math.PI / 2 : 0)
+        .add(mouseIntersect);
+      const measures = getMeasurementsFromDimensions(dimensions);
+      const boundingBoxOfBrick = getBoundBoxFromMeasures(position, measures);
       if (doBoundBoxCollideWithBoundBoxSet(boundingBoxOfBrick, bricksBoundingBox)) {
         canMove = false;
         break;
       }
+      selectedBricksNewProps[brick.uID].position = position;
+      selectedBricksNewProps[brick.uID].dimensions = dimensions;
     }
     if (canMove) {
       setBricks((bricks) =>
         bricks.map((brick) => ({
           ...brick,
-          position: selected.includes(brick.uID) ? selectedBricksNewPosition[brick.uID] : brick.position
+          ...(selected.includes(brick.uID) ? selectedBricksNewProps[brick.uID] : {})
         }))
       );
       setTimeout(() => {
@@ -160,13 +168,13 @@ export const Scene = () => {
 
   useEffect(() => {
     setRotate(false);
-  }, [mode]);
+  }, [mode, hasSelectedBricks]);
 
   const onClick = (e) => {
     if (!isEditMode) {
       if (!isDrag.current) addBrick();
       else isDrag.current = false;
-    } else if (selectedBricks.length > 0 && !e.shiftKey) {
+    } else if (hasSelectedBricks && !e.shiftKey) {
       updateBrickPosition();
     }
   };
@@ -232,6 +240,7 @@ export const Scene = () => {
       <MultiBrickCursor
         anchor={selectedBricksAnchor}
         position={mouseIntersect}
+        rotate={rotate}
         bricks={selectedBricks}
       />
       <Others />

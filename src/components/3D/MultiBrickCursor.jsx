@@ -6,19 +6,27 @@ import React, { useMemo } from "react";
 import { Vector3 } from "three";
 import { getMeasurementsFromDimensions, createGeometry } from "../../utils";
 
-export const MultiBrickCursor = ({position, anchor, bricks, visible = true}) => {
+export const MultiBrickCursor = ({position, anchor, bricks, rotate = false, visible = true}) => {
   const meshes = useMemo(() => {
     return bricks.map((brick) => {
-      const { height, width, depth } = getMeasurementsFromDimensions(brick.dimensions);
-      const brickGeometry = createGeometry({ width, height, depth, dimensions: brick.dimensions, knobDim: 0});
+      const dimensions = {
+        x: !rotate ? brick.dimensions.x : brick.dimensions.z,
+        z: !rotate ? brick.dimensions.z : brick.dimensions.x
+      }
+      const { height, width, depth } = getMeasurementsFromDimensions(dimensions);
+      const brickGeometry = createGeometry({ width, height, depth, dimensions: dimensions, knobDim: 0});
 
       return {
         uID: brick.uID,
-        relPosition: new Vector3().copy(brick.position).sub(anchor).toArray(),
+        relPosition: new Vector3()
+          .copy(brick.position)
+          .sub(anchor)
+          .applyAxisAngle(new Vector3(0, 1, 0), rotate ? Math.PI / 2 : 0)
+          .toArray(),
         geometry: brickGeometry
       }
     })
-  }, [anchor, bricks]);
+  }, [anchor, bricks, rotate]);
 
   return (
     <>
