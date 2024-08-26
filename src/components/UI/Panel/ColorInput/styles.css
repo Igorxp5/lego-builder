@@ -29,3 +29,13 @@
   padding: 8px;
   background-color: var(--black-a7);
 }
+
+.SliderColorPickerInput {
+  width: 150px;
+  margin-top: 7px;
+  padding: 5px;
+  border-radius: 4px;
+  color: #323232;
+  background-color: var(--black-a7);
+  box-shadow: 0 1px 5px var(--black-a7);
+}

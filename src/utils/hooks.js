@@ -23,25 +23,25 @@ export const useAnchorShorcuts = () => {
 
   useKeyboardShortcut(["D"], anchorXPlus, {
     overrideSystem: true,
-    ignoreInputFields: false,
+    ignoreInputFields: true,
     repeatOnHold: false,
   });
 
   useKeyboardShortcut(["A"], anchorXMinus, {
     overrideSystem: true,
-    ignoreInputFields: false,
+    ignoreInputFields: true,
     repeatOnHold: false,
   });
 
   useKeyboardShortcut(["W"], anchorZPlus, {
     overrideSystem: true,
-    ignoreInputFields: false,
+    ignoreInputFields: true,
     repeatOnHold: false,
   });
 
   useKeyboardShortcut(["S"], anchorZMinus, {
     overrideSystem: true,
-    ignoreInputFields: false,
+    ignoreInputFields: true,
     repeatOnHold: false,
   });
 
