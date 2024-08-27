@@ -32,6 +32,9 @@ export const useStore = create(
       anchorX: DEFAULT_ANCHOR,
       setAnchorX: (newAnchorPoint) => set({ anchorX: newAnchorPoint }),
 
+      anchorY: DEFAULT_ANCHOR,
+      setAnchorY: (newAnchorPoint) => set({ anchorY: newAnchorPoint }),
+
       anchorZ: DEFAULT_ANCHOR,
       setAnchorZ: (newAnchorPoint) => set({ anchorZ: newAnchorPoint }),
 

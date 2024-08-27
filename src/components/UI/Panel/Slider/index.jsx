@@ -9,6 +9,7 @@ const stateMap = {
   width: "width",
   depth: "depth",
   "anchor X": "anchorX",
+  "anchor Y": "anchorY",
   "anchor Z": "anchorZ",
 };
 
@@ -16,6 +17,7 @@ const setterMap = {
   width: "setWidth",
   depth: "setDepth",
   "anchor X": "setAnchorX",
+  "anchor Y": "setAnchorY",
   "anchor Z": "setAnchorZ",
 };
 

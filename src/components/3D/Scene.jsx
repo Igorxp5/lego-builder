@@ -64,6 +64,7 @@ export const Scene = () => {
   const width = useStore((state) => !rotate ? state.width : state.depth);
   const depth = useStore((state) => !rotate ? state.depth : state.width);
   const anchorX = useStore((state) => state.anchorX);
+  const anchorY = useStore((state) => state.anchorY);
   const anchorZ = useStore((state) => state.anchorZ);
   const color = useStore((state) => state.color);
 
@@ -140,7 +141,7 @@ export const Scene = () => {
 
     const translatedXZMousePosition = new Vector3()
       .copy(mousePosition)
-      .add(new Vector3(anchorX * GRID_UNIT.x, 0, anchorZ * GRID_UNIT.z));
+      .add(new Vector3(anchorX * GRID_UNIT.x, anchorY * GRID_UNIT.y, anchorZ * GRID_UNIT.z));
 
     if (isCreateMode && brickCursorRef.current) {
       brickCursorRef.current.userData.mousePosition = mousePosition; 
@@ -169,15 +170,15 @@ export const Scene = () => {
     if (isCreateMode && brickCursorRef.current && brickCursorRef.current.userData.mousePosition) {
       brickCursorRef.current.position
         .copy(brickCursorRef.current.userData.mousePosition)
-        .add(new Vector3(anchorX * GRID_UNIT.x, 0, anchorZ * GRID_UNIT.z));
+        .add(new Vector3(anchorX * GRID_UNIT.x, anchorY * GRID_UNIT.y, anchorZ * GRID_UNIT.z));
     }
 
     if (isEditMode && multiBrickCursorRef.current && multiBrickCursorRef.current.userData.mousePosition) {
       multiBrickCursorRef.current.position
         .copy(multiBrickCursorRef.current.userData.mousePosition)
-        .add(new Vector3(anchorX * GRID_UNIT.x, 0, anchorZ * GRID_UNIT.z));
+        .add(new Vector3(anchorX * GRID_UNIT.x, anchorY  * GRID_UNIT.y, anchorZ * GRID_UNIT.z));
     }
-  }, [anchorX, anchorZ]);
+  }, [anchorX, anchorY, anchorZ]);
 
   useEffect(() => {
     setRotate(false);

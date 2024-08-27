@@ -3,6 +3,7 @@ import { useStore } from "../store";
 
 export const useAnchorShorcuts = () => {
   const setAnchorX = useStore((state) => state.setAnchorX);
+  const setAnchorY = useStore((state) => state.setAnchorY);
   const setAnchorZ = useStore((state) => state.setAnchorZ);
 
   const anchorXPlus = () => {
@@ -11,6 +12,14 @@ export const useAnchorShorcuts = () => {
 
   const anchorXMinus = () => {
     setAnchorX(useStore.getState().anchorX - 1);
+  };
+
+  const anchorYPlus = () => {
+    setAnchorY(useStore.getState().anchorY + 1);
+  };
+
+  const anchorYMinus = () => {
+    setAnchorY(useStore.getState().anchorY - 1);
   };
 
   const anchorZPlus = () => {
@@ -28,6 +37,18 @@ export const useAnchorShorcuts = () => {
   });
 
   useKeyboardShortcut(["A"], anchorXMinus, {
+    overrideSystem: true,
+    ignoreInputFields: true,
+    repeatOnHold: false,
+  });
+
+  useKeyboardShortcut(["R"], anchorYPlus, {
+    overrideSystem: true,
+    ignoreInputFields: true,
+    repeatOnHold: false,
+  });
+
+  useKeyboardShortcut(["F"], anchorYMinus, {
     overrideSystem: true,
     ignoreInputFields: true,
     repeatOnHold: false,

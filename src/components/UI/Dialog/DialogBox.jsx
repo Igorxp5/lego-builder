@@ -14,7 +14,7 @@ export const DialogBox = () => (
         style={{
           position: "absolute",
           top: "20px",
-          left: "20px",
+          right: "20px",
           background: "white",
           zIndex: "1000000000",
         }}
@@ -33,8 +33,10 @@ export const DialogBox = () => (
             <li>
               You change the pivot point of bricks using{" "}
               <span className="key">A</span> <span className="key">S</span>{" "}
-              <span className="key">W</span> and <span className="key">D</span>{" "}
-              keys or You can use <strong>anchorX</strong> and{" "}
+              <span className="key">W</span> <span className="key">D</span>{" "}
+              <span className="key">R</span> and <span className="key">F</span>{" "}
+              keys or You can use <strong>anchorX</strong>,{" "}
+              <strong>anchorY</strong> and{" "}
               <strong>anchorZ</strong> option from the control panel
             </li>
             <li>
